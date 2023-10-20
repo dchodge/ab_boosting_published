@@ -1,0 +1,120 @@
+
+## Load relevant scripts
+```{r}
+
+source("R/main.R")
+
+```
+
+## Clean raw data
+
+```{r}
+
+
+## CLEAN PILOT DATA ##
+
+
+
+### CLEAN HCW COHORT DATA ###
+
+# HCW H3N2 egg
+commandArgs <- function(...) c("A/South Australia/34/2019e", "A/Hong Kong/2671/2019e", "A/Darwin/09/2021e", "H3N2_vac")
+source(here::here("R/clean_hcw.R"))
+
+# HCW H3N2 cell
+commandArgs <- function(...) c("A/South Australia/34/2019", "A/Darwin/726/2019", "A/Darwin/09/2021", "H3N2_cell")
+source(here::here("R/clean_hcw.R"))
+
+# HCW H1N1 egg
+commandArgs <- function(...) c("A/Brisbane/02/2018e", "A/Victoria/2570/2019e", "A/Victoria/2570/2019e", "H1N1_vac")
+source(here::here("R/clean_hcw.R"))
+
+# CREATE DATA FOR STAN
+source(here::here("R", "model_data_hcwonly.R"))
+
+# full data?
+
+```
+
+## Run the regression model, hcw only
+
+```{r}
+
+# HCW only model
+## MODEL A: H3 multiyear vacc model
+load(file = here::here("outputs", "data_model", "h3only_hcwonly_stan.RData") )
+#fit_whole_dataset(h3only_stan, "stan", "h3only_hcwonly_base")
+
+## MODEL B: H1/H3 vac separately
+load(file = here::here("outputs", "data_model", "h3only_hcwonly_stan.RData") )
+#fit_whole_dataset(h1only_stan, "stan", "h1only_hcwonly_base")
+
+## MODEL C: H3 cell model separately
+load(file = here::here("outputs", "data_model", "h3cell_hcwonly_stan.RData") )
+#fit_whole_dataset(h3cell_stan, "stan", "h3cell_hcwonly_base")
+
+source(here::here("R/plot_posteriors.R"))
+
+fit_h3only <- readRDS(here::here("outputs", "stan", "fit_h3only_hcwonly_base.RData"))
+plot_effect_sizes(h3only_stan, fit_h3only, "h3only", study_labels)
+plot_marginal_post(h3only_stan, fit_h3only, "h3only", study_labels)
+
+fit_h1only <- readRDS(here::here("outputs", "stan", "fit_h1only_hcwonly_base.RData"))
+plot_effect_sizes(h1only_stan, fit_h1only, "h1only", study_labels)
+plot_marginal_post(h1only_stan, fit_h1only, "h1only", study_labels)
+
+fit_h3cell <- readRDS(here::here("outputs", "stan", "fit_h3cell_hcwonly_base.RData"))
+plot_effect_sizes(h3cell_stan, fit_h3cell, "h3cell", study_labels)
+plot_marginal_post(h3cell_stan, fit_h3cell, "h3cell", study_labels)
+
+
+```
+
+## Plot the main figures 
+
+```{r}
+
+load(here::here("outputs", "data_model", "h3only_hcwonly_stan.RData"))
+load(here::here("outputs", "data_model", "h1only_hcwonly_stan.RData"))
+load(here::here("outputs", "data_model", "h3cell_hcwonly_stan.RData"))
+
+best_fit_h3only <- readRDS(here::here("outputs", "stan", "fit_h3only_hcwonly_base.RData"))
+best_fit_h1only <- readRDS(here::here("outputs", "stan", "fit_h1only_hcwonly_base.RData"))
+best_fit_h3cell <- readRDS(here::here("outputs", "stan", "fit_h3cell_hcwonly_base.RData"))
+
+source(here::here("R", "fig1.R"))
+source(here::here("R", "fig2.R"))
+source(here::here("R", "fig3_4.R"))
+
+
+```
+
+
+```{r}
+
+
+
+load(file = here::here("outputs", "data_model", "h3only_hcwonly_df.RData") )
+
+
+h3only_df_meta <- h3only_df %>% select(pid, vac_year, sex, age_cat, site, prevac) %>% unique 
+
+p1 <- h3only_df_meta %>% 
+    ggplot() + geom_bar(aes(x =  vac_year, fill = sex), width = 0.7, position = position_dodge(0.7)) + theme_bw() + 
+    labs(x = "Study year", y = "Count", fill = "Sex")
+
+p2 <- h3only_df_meta %>% 
+    ggplot() + geom_bar(aes(x =  vac_year, fill = age_cat), width = 0.7, position = position_dodge(0.7)) + theme_bw() + 
+    labs(x = "Study year", y = "Count", fill = "Age group")
+
+p3 <- h3only_df_meta %>% 
+    ggplot() + geom_bar(aes(x =  vac_year, fill = site), width = 0.7, position = position_dodge(0.7)) + theme_bw() + 
+    labs(x = "Study year", y = "Count", fill = "Study site")
+
+p4 <- h3only_df_meta %>% 
+    ggplot() + geom_bar(aes(x =  vac_year, fill = prevac), width = 0.7, position = position_dodge(0.7)) + theme_bw() + 
+    labs(x = "Study year", y = "Count", fill = "Number previous vaccines")
+
+(p1 | p2) /  (p3 | p4) 
+
+```
