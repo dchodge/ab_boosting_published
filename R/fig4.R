@@ -116,16 +116,16 @@ df_h1n1_ks <- cal_ks_4fold(ind_traj_h1h1_ind, "A(H1N1) vaccinating")
 df_h3n2_ks <- cal_ks_4fold(ind_traj_h3h2_ind, "A(H3N2) vaccinating")
 df_h3n2cell_ks <- cal_ks_4fold(ind_traj_h3h2cell_ind, "A(H3N2) circulating")
 
-df_ks_4fold <- bind_rows(df_h1n1_ks, df_h3n2_ks, df_h3n2cell_ks) %>% mutate(heuristic = "Four-fold rise")
+df_ks_4fold <- bind_rows(df_h1n1_ks, df_h3n2_ks, df_h3n2cell_ks) %>% mutate(heuristic = "4-fold rise")
 
 df_h1n1_ks <- cal_ks_40(ind_traj_h1h1_ind, "A(H1N1) vaccinating")
 df_h3n2_ks <- cal_ks_40(ind_traj_h3h2_ind, "A(H3N2) vaccinating")
 df_h3n2cell_ks <- cal_ks_40(ind_traj_h3h2cell_ind, "A(H3N2) circulating")
 
-df_ks_40 <- bind_rows(df_h1n1_ks, df_h3n2_ks, df_h3n2cell_ks) %>% mutate(heuristic = "1:40 HAI titre")
+df_ks_40 <- bind_rows(df_h1n1_ks, df_h3n2_ks, df_h3n2cell_ks) %>% mutate(heuristic = "HAI titre above 1:40")
 
 df_ks <- bind_rows(df_ks_4fold, df_ks_40) %>% 
-    mutate(p_sig = case_when(pval < 0.05~"<0.05", pval >= 0.05~">=0.05")) %>%
+    mutate(p_sig = case_when(pval < 0.05~"<0.05", pval >= 0.05~"\u2265 0.05")) %>%
     mutate(titre_val = factor(titre_val, levels = c("<10", "10", "20", "40", "80", "160", ">160")))
 
 p3 <- df_ks %>%
@@ -137,7 +137,9 @@ p3 <- df_ks %>%
     scale_fill_manual(values = c("red", "gray")) +
     labs(x = "Pre-vaccination HAI titre", y = 
         "Effect size between infrequently\nvaccinated and frequently vaccinated", fill = "p-value from KS-test") + 
-    ggtitle("Measure of effect size of vaccination history for a given heuristic")
+    ggtitle("Measure of effect size of vaccination history for a given heuristic") + 
+    theme(strip.text = element_text(size = 12), text = element_text(size = 12)) 
+
 
 
 stat.test_4fold <- bind_rows(
@@ -176,15 +178,16 @@ stat.test_40 <- bind_rows(
 p1 <- ind_traj_subtype %>% mutate(subtype = factor(subtype, levels = c("A(H1N1) vaccinating", "A(H3N2) vaccinating", "A(H3N2) circulating"))) %>%
     filter(titre_vals != ">160") %>% 
     ggplot() + 
-        geom_boxplot(aes(x = titre_vals, middle = mean(dur_4fold), y = dur_4fold, fill = vac_hist), alpha = 0.2, outlier.shape = NA) + 
-        geom_point(aes(x = titre_vals, y = dur_4fold, color = vac_hist), alpha = 0.2, 
+        geom_boxplot(aes(x = titre_vals, middle = mean(dur_4fold), y = dur_4fold, fill = vac_hist), alpha = 0.1, outlier.shape = NA) + 
+        geom_point(aes(x = titre_vals, y = dur_4fold, color = vac_hist), shape = 1, alpha = 0.8, 
             position = position_jitterdodge(jitter.width = 0.2)) + theme_bw() + 
         #geom_text(data = stat.test_4fold, aes(x = titre_vals, label = 
          #   paste0(p.adj, " (", p.adj.signif, ")")), angle = 90, y = 850) +
             facet_grid(cols = vars(subtype)) + 
             scale_y_continuous(
                 limits = c(0, 365), breaks = c(0, 50, 100, 150, 200, 250, 300, 365), labels = c("0", "50", "100", "150", "200", "250", "300", ">365")) +
-            labs(y = "Days post-vaccination above 4 fold-rise\n (individual-level)", x = "Pre-vaccination HAI titre", fill = "Vaccine history", color = "Vaccine history") 
+            labs(y = "Days post-vaccination above 4 fold-rise\n (individual-level)", x = "Pre-vaccination HAI titre", fill = "Vaccine history", color = "Vaccine history")  + 
+    theme(strip.text = element_text(size = 12), text = element_text(size = 12))  
 
 
 p2 <- ind_traj_subtype %>% 
@@ -192,15 +195,16 @@ p2 <- ind_traj_subtype %>%
     mutate(dur_40 = pmin(dur_40, 365)) %>%
     filter(titre_vals != ">160") %>% 
     ggplot() + 
-        geom_boxplot(aes(x = titre_vals, middle = mean(dur_40) , y = dur_40, fill = vac_hist), alpha = 0.2, outlier.shape = NA) + 
-        geom_point(aes(x = titre_vals, y = dur_40, color = vac_hist), alpha = 0.2, 
+        geom_boxplot(aes(x = titre_vals, middle = mean(dur_40) , y = dur_40, fill = vac_hist), alpha = 0.1, outlier.shape = NA) + 
+        geom_point(aes(x = titre_vals, y = dur_40, color = vac_hist), shape = 1, alpha = 0.8, 
             position = position_jitterdodge(jitter.width = 0.2)) + theme_bw() + 
        # geom_text(data = stat.test_40, aes(x = titre_vals, label = 
        #     paste0(p.adj, " (", p.adj.signif, ")")), angle = 90, y = 850) +
             facet_grid(cols = vars(subtype)) +
             scale_y_continuous(
                 limits = c(0, 365), breaks = c(0, 50, 100, 150, 200, 250, 300, 365), labels = c("0", "50", "100", "150", "200", "250", "300", ">365")) +
-            labs(y = "Days post-vaccination with titre value above 1:40\n (individual-level)", x = "Pre-vaccination HAI titre", fill = "Vaccine history", color = "Vaccine history") 
+            labs(y = "Days post-vaccination with titre value above 1:40\n (individual-level)", x = "Pre-vaccination HAI titre", fill = "Vaccine history", color = "Vaccine history") + 
+    theme(strip.text = element_text(size = 12), text = element_text(size = 12))  
 
-p2 / p1 / p3
+p1 / p2 / p3  + plot_annotation(tag_levels = "A")
 ggsave(file = here::here("outputs", "figs", "main", "fig4.pdf"), height = 13, width = 13)

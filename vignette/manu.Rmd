@@ -1,0 +1,93 @@
+
+# Recreate metrics in manuscript
+```{r}
+source("R/main.R")
+```
+
+
+## METHODS ##
+
+```{r}
+
+
+
+h1only_hcwonly_df_get <- load(here::here("outputs", "data_model", "h1only_hcwonly_df.RData"))
+h1only_df <- get(h1only_hcwonly_df_get)
+
+h3only_hcwonly_df_get <- load(here::here("outputs", "data_model", "h3only_hcwonly_df.RData"))
+h3only_df <- get(h3only_hcwonly_df_get)
+
+# Get info on timings
+h3only_df %>% ggplot() + geom_histogram(aes(x = days))
+h3only_df$days[h3only_df$days > 65]
+
+# Get info on number of samples
+h3only_df %>% nrow
+
+# Get info on number of inidividuals
+h3only_df %>% mutate(pid_only = substr(pid, 1, 7) ) %>% pull(pid_only) %>% unique %>% length
+
+# Get on vaccine history
+h3only_df %>% pull(prevac) %>% table
+
+h3only_df %>% mutate(pid_only = substr(pid, 1, 7) ) %>% select(!c(pid, days)) %>% unique %>% pull(prevac) %>% table
+
+h3only_df %>% nrows
+
+
+```
+
+## MODEL VALIDATION ##
+
+```{r}
+
+create_df_comparison <- function(fit_hX, stan_hX) {
+    mean_boost_id <- fit_hX %>% as_draws_df %>% spread_draws(titre_est[s]) %>% 
+    group_by(s) %>%
+    summarise(titre_est_mean = mean(titre_est)) %>% mutate(titre_est_mean_round = round(titre_est_mean, 0)) 
+
+    data.frame(
+            pid = stan_hX$ind,
+            data = stan_hX$boost,
+            model = mean_boost_id$titre_est_mean_round
+        ) %>% 
+        left_join(    
+            data.frame(
+                pid = 1:stan_hX$N_ind,
+                study = stan_hX$study
+            )
+    )
+}
+
+load(file = here::here("outputs", "data_model", "h3cell_hcwonly_stan.RData"))
+load(file = here::here("outputs", "data_model", "h1only_hcwonly_stan.RData"))
+load(file = here::here("outputs", "data_model", "h3only_hcwonly_stan.RData"))
+best_fit_h3only <- readRDS(here::here("outputs", "stan", "fit_h3only_hcwonly_base.RData"))
+best_fit_h1only <- readRDS(here::here("outputs", "stan", "fit_h1only_hcwonly_base.RData"))
+best_fit_h3cell <- readRDS(here::here("outputs", "stan", "fit_h3cell_hcwonly_base.RData"))
+
+plot_data_h3vac <- create_df_comparison(best_fit_h3only, h3only_stan)
+plot_data_h1vac <- create_df_comparison(best_fit_h1only, h1only_stan)
+plot_data_h3cell <- create_df_comparison(best_fit_h3cell, h3cell_stan)
+
+plot_data_h1vac %>% mutate(diff = abs(data - model)) %>% 
+    mutate(in_bounds = (diff <= 1)) %>% summarise(n = n() / nrow(.), .by = in_bounds)
+plot_data_h3vac %>% mutate(diff = abs(data - model)) %>% 
+    mutate(in_bounds = (diff <= 1)) %>% summarise(n = n() / nrow(.), .by = in_bounds)
+plot_data_h3cell %>% mutate(diff = abs(data - model)) %>% 
+    mutate(in_bounds = (diff <= 1)) %>% summarise(n = n() / nrow(.), .by = in_bounds)
+
+
+plot_data_h1vac %>%  mutate(above_16 = (data >= 5)) %>% summarise(n = n() / nrow(.), .by = above_16)
+plot_data_h3vac %>%  mutate(above_16 = (data >= 5)) %>% summarise(n = n() / nrow(.), .by = above_16)
+plot_data_h3cell %>%  mutate(above_16 = (data >= 5)) %>% summarise(n = n() / nrow(.), .by = above_16)
+
+```
+
+## MODEL VALIDATION ##
+
+```{r}
+
+
+
+```

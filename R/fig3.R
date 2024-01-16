@@ -72,7 +72,8 @@ p1 <- comparbw_t_mean_uncert %>% mutate(subtype = factor(subtype, levels = c("A(
             facet_grid(cols = vars(subtype), rows = vars(heuristic)) + 
             scale_y_continuous(
                 limits = c(0, 365), breaks = c(0, 50, 100, 150, 200, 250, 300, 365), labels = c("0", "50", "100", "150", "200", "250", "300", ">365")) +
-            labs(y = "PPD of days post-vaccination where heuristic holds", x = "Pre-vaccination HAI titre", fill = "Vaccine history", color = "Vaccine history") 
+            labs(y = "PPD of days post-vaccination where heuristic holds", x = "Pre-vaccination HAI titre", fill = "Vaccine history", color = "Vaccine history")  + 
+            theme(strip.text = element_text(size = 12), text = element_text(size = 12)) 
 
 
 comparbw_t_mean_uncert_marginal_eff <- comparbw_t_mean_uncert %>% select(titre_vals, v, heuristic, values, subtype, .draw) %>%
@@ -86,10 +87,12 @@ p2 <- comparbw_t_mean_uncert_marginal_eff  %>%
      ggplot() + 
         geom_boxplot(aes(x = titre_vals, y = diff_heuristic)) + 
         facet_grid(cols = vars(subtype), rows = vars(heuristic)) + theme_bw() + 
-        labs(x = "Pre-vaccination HAI titre", y = "Marginal effect of vaccine history on heuristic\n(Infrequently vs. frequently vaccinated)")
+        labs(x = "Pre-vaccination HAI titre", y = "Marginal effect of vaccine history on heuristic\n(Infrequently vs. frequently vaccinated)")  + 
+    theme(strip.text = element_text(size = 12), text = element_text(size = 12)) 
 
-p1 / p2 
-ggsave(here::here("outputs", "figs", "main", "fig3a.pdf"), height = 12, width = 12)
+
+p1 / p2  + plot_annotation(tag_levels = "A")
+ggsave(here::here("outputs", "figs", "main", "fig3.pdf"), height = 12, width = 12)
 
 
 comparbw_t_mean_uncert %>% filter(subtype == "A(H1N1) vaccinating") %>% 
