@@ -11,10 +11,6 @@ source("R/main.R")
 ```{r}
 
 
-## CLEAN PILOT DATA ##
-
-
-
 ### CLEAN HCW COHORT DATA ###
 
 # HCW H3N2 egg
@@ -31,8 +27,6 @@ source(here::here("R/clean_hcw.R"))
 
 # CREATE DATA FOR STAN
 source(here::here("R", "model_data_hcwonly.R"))
-
-# full data?
 
 ```
 
