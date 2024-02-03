@@ -204,9 +204,9 @@ model {
 
     for (i in 1:N) {
         if (likelihood_type == 1) {
-            mu = normal_cdf( boost[i] + 1 , titre_est[i], sigma_gp) - normal_cdf( boost[i] - 1 , titre_est[i], sigma_gp);
+            mu = normal_cdf( boost[i] + 1 | titre_est[i], sigma_gp) - normal_cdf( boost[i] - 1 | titre_est[i], sigma_gp);
         } else if (likelihood_type == 2) {
-            mu = cauchy_cdf( boost[i] + 1 , titre_est[i], sigma_gp) - cauchy_cdf( boost[i] - 1 , titre_est[i], sigma_gp);
+            mu = cauchy_cdf( boost[i] + 1 | titre_est[i], sigma_gp) - cauchy_cdf( boost[i] - 1 | titre_est[i], sigma_gp);
         }
 
         if (mu <= 0) {
@@ -365,9 +365,9 @@ generated quantities {
     vector[N] log_lik;
     for (i in 1:N) {
         if (likelihood_type == 1) {
-            log_lik[i] = log(normal_cdf( boost[i] + 1 , titre_est[i], sigma_gp) - normal_cdf( boost[i] - 1 , titre_est[i], sigma_gp)) + log(0.33 / prop_study[study[ind[i]]]);
+            log_lik[i] = log(normal_cdf( boost[i] + 1 | titre_est[i], sigma_gp) - normal_cdf( boost[i] - 1 | titre_est[i], sigma_gp)) + log(0.33 / prop_study[study[ind[i]]]);
         } else if (likelihood_type == 2) {
-            log_lik[i] = log(cauchy_cdf( boost[i] + 1 , titre_est[i], sigma_gp) - cauchy_cdf( boost[i] - 1 , titre_est[i], sigma_gp)) + log(0.33 / prop_study[study[ind[i]]]);
+            log_lik[i] = log(cauchy_cdf( boost[i] + 1 | titre_est[i], sigma_gp) - cauchy_cdf( boost[i] - 1 | titre_est[i], sigma_gp)) + log(0.33 / prop_study[study[ind[i]]]);
         }
     }
 }
