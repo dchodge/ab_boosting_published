@@ -49,6 +49,9 @@ find_dur_above40 <- function(df) {
 comparbw_t_meanh1n1_uncert <- get_marginal_boosts_uncert(best_fit_h1only) %>% convert_to_segment %>% find_dur_4fold_alt %>% 
     find_dur_above40 %>%
     mutate(dur_4fold_trunc = pmin(dur_4fold, 365), dur_40_trunc = pmin(dur_40, 365))
+comparbw_t_meanh1n1cell_uncert <- get_marginal_boosts_uncert(best_fit_h1cell) %>% convert_to_segment %>% find_dur_4fold_alt %>% 
+    find_dur_above40 %>%
+    mutate(dur_4fold_trunc = pmin(dur_4fold, 365), dur_40_trunc = pmin(dur_40, 365))
 comparbw_t_meanh3n2_uncert <- get_marginal_boosts_uncert(best_fit_h3only) %>% convert_to_segment %>% find_dur_4fold_alt %>% 
     find_dur_above40 %>%
     mutate(dur_4fold_trunc = pmin(dur_4fold, 365), dur_40_trunc = pmin(dur_40, 365))
@@ -58,11 +61,12 @@ comparbw_t_meanh3n2cell_uncert <- get_marginal_boosts_uncert(best_fit_h3cell) %>
 
 comparbw_t_mean_uncert <- bind_rows(
     comparbw_t_meanh1n1_uncert %>% mutate(subtype = "A(H1N1) vaccinating"),
+    comparbw_t_meanh1n1cell_uncert %>% mutate(subtype = "A(H1N1) circulating"),
     comparbw_t_meanh3n2_uncert %>% mutate(subtype = "A(H3N2) vaccinating"),
     comparbw_t_meanh3n2cell_uncert %>% mutate(subtype = "A(H3N2) circulating")
 )
 
-p1 <- comparbw_t_mean_uncert %>% mutate(subtype = factor(subtype, levels = c("A(H1N1) vaccinating", "A(H3N2) vaccinating", "A(H3N2) circulating"))) %>%
+p1 <- comparbw_t_mean_uncert %>% mutate(subtype = factor(subtype, levels = c("A(H1N1) vaccinating", "A(H3N2) vaccinating", "A(H1N1) circulating", "A(H3N2) circulating"))) %>%
     ggplot() + 
         geom_boxplot(aes(x = titre_vals, y = dur_4fold_trunc, fill = v), alpha = 0.8, outlier.shape = NA) + 
             theme_bw() + 
@@ -71,7 +75,7 @@ p1 <- comparbw_t_mean_uncert %>% mutate(subtype = factor(subtype, levels = c("A(
                 limits = c(0, 365), breaks = c(0, 50, 100, 150, 200, 250, 300, 365), labels = c("0", "50", "100", "150", "200", "250", "300", ">365")) +
             labs(y = "Days post-vaccination above 4 fold-rise (individual-level)", x = "Pre-vaccination HAI titre", fill = "Vaccine history", color = "Vaccine history") 
 
-p2 <- comparbw_t_mean_uncert %>% mutate(subtype = factor(subtype, levels = c("A(H1N1) vaccinating", "A(H3N2) vaccinating", "A(H3N2) circulating"))) %>%
+p2 <- comparbw_t_mean_uncert %>% mutate(subtype = factor(subtype, levels = c("A(H1N1) vaccinating", "A(H3N2) vaccinating", "A(H1N1) circulating",  "A(H3N2) circulating"))) %>%
     ggplot() + 
         geom_boxplot(aes(x = titre_vals, y = dur_40_trunc, fill = v), alpha = 0.8, outlier.shape = NA) + 
             theme_bw() + 
@@ -116,57 +120,29 @@ p1 / p2 / p3 / p4
 
 comparbw_t_meanh1n1 <- get_marginal_boosts(best_fit_h1only) %>% convert_to_segment %>% find_dur_4fold
 comparbw_t_meanh3n2 <- get_marginal_boosts(best_fit_h3only) %>% convert_to_segment %>% find_dur_4fold
+comparbw_t_meanh1n1cell <- get_marginal_boosts(best_fit_h1cell) %>% convert_to_segment %>% find_dur_4fold
 comparbw_t_meanh3n2cell <- get_marginal_boosts(best_fit_h3cell) %>% convert_to_segment %>% find_dur_4fold
 
-p1 <- comparbw_t_meanh1n1 %>% convert_to_segment %>%
-    ggplot() + 
-            geom_hline(yintercept = 0, linetype = "dashed") +
-            geom_hline(yintercept = 2, linetype = "dashed") +
-            geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, colour = titre_vals), alpha = 1, size = 1) + 
-            theme_bw() + 
-            facet_grid(cols = vars(v)) +
-            scale_y_continuous(breaks = c(-1:5), labels = 2^c(-1:5)) + 
-            labs(x = "Days post-vaccination", y = "Model-predicted HAI titre fold-rise", 
-                        color = "Pre-vaccination HAI titre") +
-            ggtitle("H1N1: Vaccine-induced HAI kinetics to vaccinating strains") + 
-            theme(strip.text = element_text(size = 12), text = element_text(size = 12)) 
-
-p2 <- comparbw_t_meanh3n2 %>% convert_to_segment %>%
-    ggplot() + 
-            geom_hline(yintercept = 0, linetype = "dashed") +
-            geom_hline(yintercept = 2, linetype = "dashed") +
-            geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, colour = titre_vals), alpha = 1, size = 1) + 
-            theme_bw() + 
-            facet_grid(cols = vars(v)) +
-            scale_y_continuous(breaks = c(-1:5), labels = 2^c(-1:5)) + 
-            labs(x = "Days post-vaccination", y = "Model-predicted HAI titre fold-rise", 
-                        color = "Pre-vaccination HAI titre") +
-         ggtitle("H3N2: Vaccine-induced HAI kinetics to vaccinating strains") + 
-            theme(strip.text = element_text(size = 12), text = element_text(size = 12)) 
- 
-
-
-p3 <- comparbw_t_meanh3n2cell %>% convert_to_segment %>%
-    ggplot() + 
-            geom_hline(yintercept = 0, linetype = "dashed") +
-            geom_hline(yintercept = 2, linetype = "dashed") +
-            geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, colour = titre_vals), alpha = 1, size = 1) + 
-            theme_bw() + 
-            facet_grid(cols = vars(v)) +
-            scale_y_continuous(breaks = c(-1:5), labels = 2^c(-1:5)) + 
-            labs(x = "Days post-vaccination", y = "Model-predicted HAI titre fold-rise", 
-                        color = "Pre-vaccination HAI titre") +
-            ggtitle("H3N2: Vaccine-induced HAI kinetics to circulating strains")  + 
-            theme(strip.text = element_text(size = 12), text = element_text(size = 12)) 
-
-
-
-comparbw_t_mean <- bind_rows(
+comparbw_t_meanXX <- bind_rows(
     comparbw_t_meanh1n1 %>% mutate(subtype = "A(H1N1) vaccinating"),
     comparbw_t_meanh3n2 %>% mutate(subtype = "A(H3N2) vaccinating"),
-    comparbw_t_meanh3n2cell  %>% mutate(subtype = "A(H3N2) circulating")
-) %>% mutate(dur_4fold_lb = pmin(dur_4fold_lb, 365) )
+    comparbw_t_meanh1n1cell %>% mutate(subtype = "A(H1N1) circulating"),
+    comparbw_t_meanh3n2cell %>% mutate(subtype = "A(H3N2) circulating")
+) %>% mutate(subtype = factor(subtype, levels = c("A(H1N1) vaccinating", "A(H3N2) vaccinating", "A(H1N1) circulating", "A(H3N2) circulating")))
 
 
-p1 / p2 / p3  + plot_layout(guides = "collect", heights = c(1, 1, 1)) + plot_annotation(tag_levels = "A")
-ggsave(file = here::here("outputs", "figs", "main", "fig2.pdf"), height = 14, width = 10)
+
+comparbw_t_meanXX %>% convert_to_segment %>%
+    ggplot() + 
+            geom_hline(yintercept = 0, linetype = "dashed") +
+            geom_hline(yintercept = 2, linetype = "dashed") +
+            geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, colour = titre_vals), alpha = 1, size = 1) + 
+            theme_bw() + 
+            facet_grid(cols = vars(v), rows = vars(subtype)) +
+            scale_y_continuous(breaks = c(-1:5), labels = 2^c(-1:5)) + 
+            labs(x = "Days post-vaccination", y = "Model-predicted HAI titre fold-rise", 
+                        color = "Pre-vaccination HAI titre") +
+            ggtitle("Vaccine-induced HAI kinetics to influenza strains") + 
+            theme(strip.text = element_text(size = 12), text = element_text(size = 12)) 
+
+ggsave(file = here::here("outputs", "figs", "main", "fig2.pdf"), height = 12, width = 10)

@@ -16,16 +16,20 @@ create_df_comparison <- function(fit_hX, stan_hX) {
     )
 }
 
-load(file = here::here("outputs", "data_model", "h3cell_hcwonly_stan.RData"))
 load(file = here::here("outputs", "data_model", "h1only_hcwonly_stan.RData"))
 load(file = here::here("outputs", "data_model", "h3only_hcwonly_stan.RData"))
+load(file = here::here("outputs", "data_model", "h1cell_hcwonly_stan.RData"))
+load(file = here::here("outputs", "data_model", "h3cell_hcwonly_stan.RData"))
+
 best_fit_h3only <- readRDS(here::here("outputs", "stan", "fit_h3only_hcwonly_base.RData"))
 best_fit_h1only <- readRDS(here::here("outputs", "stan", "fit_h1only_hcwonly_base.RData"))
+best_fit_h1cell <- readRDS(here::here("outputs", "stan", "fit_h3cell_hcwonly_base.RData"))
 best_fit_h3cell <- readRDS(here::here("outputs", "stan", "fit_h3cell_hcwonly_base.RData"))
 
 plot_data_h3vac <- create_df_comparison(best_fit_h3only, h3only_stan)
 plot_data_h1vac <- create_df_comparison(best_fit_h1only, h1only_stan)
 plot_data_h3cell <- create_df_comparison(best_fit_h3cell, h3cell_stan)
+plot_data_h3cell <- create_df_comparison(best_fit_h1cell, h1cell_stan)
 
 
 p1 <- plot_data_h1vac %>%  mutate(study = recode(study, !!!study_labels)) %>%
@@ -52,7 +56,19 @@ p2 <- plot_data_h3vac %>%  mutate(study = recode(study, !!!study_labels)) %>%
             y = "Model-predicted HAI fold-rise (GTR)\n at bleed date") + 
         ggtitle("Model fits for A(H3N2) vaccinating strains")  + guides(size = "none")
 
-p3 <- plot_data_h3cell %>%  mutate(study = recode(study, !!!study_labels)) %>%
+p3 <- plot_data_h1cell %>%  mutate(study = recode(study, !!!study_labels)) %>%
+    ggplot() + geom_count(aes(data, model), alpha = 0.5, shape = 21, fill = "red") +
+        geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray") +
+        geom_smooth(aes(data, model), method = "lm", size = 1.5, color = "white") +
+        geom_smooth(aes(data, model), method = "lm", size = 0.5, color = "darkred") +  
+        theme_bw() + facet_grid(cols = vars(study)) + 
+        scale_y_continuous(breaks = seq(-2, 10, 2), labels = 2^seq(-2, 10, 2)) + 
+        scale_x_continuous(breaks = seq(-2, 10, 2), labels = 2^seq(-2, 10, 2)) + 
+        labs(x = "HAI fold-rise from data (GTR) at bleed date",
+            y = "Model-predicted HAI fold-rise (GTR)\n at bleed date") + 
+        ggtitle("Model fits for A(H1N1) circulating strains") + guides(size = "none")
+
+p4 <- plot_data_h3cell %>%  mutate(study = recode(study, !!!study_labels)) %>%
     ggplot() + geom_count(aes(data, model), alpha = 0.5, shape = 21, fill = "red") +
         geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray") +
         geom_smooth(aes(data, model), method = "lm", size = 1.5, color = "white") +
@@ -64,8 +80,8 @@ p3 <- plot_data_h3cell %>%  mutate(study = recode(study, !!!study_labels)) %>%
             y = "Model-predicted HAI fold-rise (GTR)\n at bleed date") + 
         ggtitle("Model fits for A(H3N2) circulating strains") + guides(size = "none")
 
-p1 / p2 / p3 + plot_annotation(tag_levels = "A")
-ggsave(file = here::here("outputs", "figs", "main", "fig1.pdf"), height = 10, width = 10)
+p1 / p2 / p3 / p4 + plot_annotation(tag_levels = "A")
+ggsave(file = here::here("outputs", "figs", "main", "fig0.pdf"), height = 10, width = 10)
 
 
 

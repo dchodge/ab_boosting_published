@@ -35,6 +35,24 @@ flextable(tb1) %>%
   save_as_docx(path = here::here("outputs", "tables", "h1only.docx") )
 
 
+load(file = here::here("outputs", "data_model", "h1cell_hcwonly_df.RData"))
+h1cell_df <- h1cell_df %>% mutate(study = recode(study, !!!recode_study_table))
+
+labels <- list(
+    variables = list( base_titre = "Pre-vaccine HAI titre",
+                    sex = "Sex",
+                    age_cat = "Age group (yrs)",
+                    site = "Study site",
+                    prevac = "Vaccine history \n(# in last 5 years)"),
+    groups=list("Study year", "Study year1"))
+
+
+strata <- c(split(h1cell_df, ~study))
+tbA1 <- table1::table1(strata, groupspan=c(5), labels = labels, data = h1cell_df, caption= "H1N1 circulating strains strains" ) %>% as.data.frame
+flextable(tbA1) %>% 
+  save_as_docx(path = here::here("outputs", "tables", "h1cell.docx") )
+
+
 load(file = here::here("outputs", "data_model", "h3cell_hcwonly_df.RData"))
 h3cell_df <- h3cell_df %>% mutate(study = recode(study, !!!recode_study_table))
 

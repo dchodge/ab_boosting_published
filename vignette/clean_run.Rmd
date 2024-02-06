@@ -71,8 +71,8 @@ plot_effect_sizes(h3cell_stan, fit_h3cell, "h3cell", study_labels)
 plot_marginal_post(h3cell_stan, fit_h3cell, "h3cell", study_labels)
 
 fit_h1cell <- readRDS(here::here("outputs", "stan", "fit_h1cell_hcwonly_base.RData"))
-plot_effect_sizes(h1cell_stan, fit_h1cell, "h3cell", study_labels)
-plot_marginal_post(h1cell_stan, fit_h1cell, "h3cell", study_labels)
+plot_effect_sizes(h1cell_stan, fit_h1cell, "h1cell", study_labels)
+plot_marginal_post(h1cell_stan, fit_h1cell, "h1cell", study_labels)
 
 ```
 
@@ -83,14 +83,17 @@ plot_marginal_post(h1cell_stan, fit_h1cell, "h3cell", study_labels)
 load(here::here("outputs", "data_model", "h3only_hcwonly_stan.RData"))
 load(here::here("outputs", "data_model", "h1only_hcwonly_stan.RData"))
 load(here::here("outputs", "data_model", "h3cell_hcwonly_stan.RData"))
+load(here::here("outputs", "data_model", "h1cell_hcwonly_stan.RData"))
 
 best_fit_h3only <- readRDS(here::here("outputs", "stan", "fit_h3only_hcwonly_base.RData"))
 best_fit_h1only <- readRDS(here::here("outputs", "stan", "fit_h1only_hcwonly_base.RData"))
 best_fit_h3cell <- readRDS(here::here("outputs", "stan", "fit_h3cell_hcwonly_base.RData"))
+best_fit_h3cell <- readRDS(here::here("outputs", "stan", "fit_h1cell_hcwonly_base.RData"))
 
 source(here::here("R", "fig1.R"))
 source(here::here("R", "fig2.R"))
-source(here::here("R", "fig3_4.R"))
+source(here::here("R", "fig3.R"))
+source(here::here("R", "fig4.R"))
 
 
 ```
