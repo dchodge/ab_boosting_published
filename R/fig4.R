@@ -196,11 +196,12 @@ p2 <- df_ks %>%
     filter(subtype %in% c( "A(H1N1) circulating", "A(H3N2) circulating")) %>%
     filter(titre_val != ">160") %>% 
     ggplot() + 
+    geom_hline(yintercept = 0.8, linetype = "dashed") + 
     geom_col(aes(x = titre_val, y = diff_mean, fill = p_sig), width = 0.5 ) + 
     facet_grid(cols = vars(subtype), rows = vars(heuristic)) + theme_bw() + 
     scale_fill_manual(values = c("red", "gray")) +
     labs(x = "Pre-vaccination HAI titre", y = 
-        "Effect size between infrequently\nvaccinated and frequently vaccinated", fill = "p-value from KS-test") + 
+        "Cohen's D effect size between infrequently\nvaccinated and frequently vaccinated", fill = "p-value from KS-test") + 
     theme(strip.text = element_text(size = 12), text = element_text(size = 12)) 
 
 
@@ -240,4 +241,4 @@ stat.test_40 <- bind_rows(
 
 
 p1 / p2  + plot_annotation(tag_levels = "A")
-ggsave(file = here::here("outputs", "figs", "main", "fig4.pdf"), height = 13, width = 13)
+ggsave(file = here::here("outputs", "figs", "main", "fig4.png"), height = 13, width = 13)

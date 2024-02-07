@@ -135,11 +135,11 @@ p1DXX <- best_fit_hXXX_plot %>% filter(!titre_vals %in% "2560") %>%
     stat_pointinterval(aes(x = titre_vals, y = ps_boost_vh_t, color = v), size = 2, shape = 21, position = position_dodge(0.7)) +  theme_bw() + 
     guides(size = "none") + 
     labs(x = "Pre-vaccination HAI titre values", y = "Peak fold-rise in HAI titre", color = "Number of \nprevious vaccines", 
-        title = "Marginal posterior distribution for stratified for pre-vaccination titre\n and vaccine history") + 
+        title = "Marginal posterior distribution for stratified for pre-vaccination titre and vaccine history") + 
     scale_y_continuous(breaks = -1:9, labels = round(2^c(-1:9), 2), limits = c(-1, 9)) + 
         facet_wrap(vars(subtype), ncol = 2)
 
-p0 <- p1 / p1DXX + plot_layout(heights = c(2, 3)) + plot_annotation(tag_levels = "A")
+p0 <- p1 / p1DXX + plot_layout(heights = c(3, 3)) + plot_annotation(tag_levels = "A")
 ggsave(file = here::here("outputs", "figs", "main", "fig1.pdf"), height = 15, width = 12)
 
 p1Di <- best_fit_h1only_plot %>% filter(!titre_vals %in% "2560") %>%

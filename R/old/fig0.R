@@ -23,13 +23,13 @@ load(file = here::here("outputs", "data_model", "h3cell_hcwonly_stan.RData"))
 
 best_fit_h3only <- readRDS(here::here("outputs", "stan", "fit_h3only_hcwonly_base.RData"))
 best_fit_h1only <- readRDS(here::here("outputs", "stan", "fit_h1only_hcwonly_base.RData"))
-best_fit_h1cell <- readRDS(here::here("outputs", "stan", "fit_h3cell_hcwonly_base.RData"))
+best_fit_h1cell <- readRDS(here::here("outputs", "stan", "fit_h1cell_hcwonly_base.RData"))
 best_fit_h3cell <- readRDS(here::here("outputs", "stan", "fit_h3cell_hcwonly_base.RData"))
 
 plot_data_h3vac <- create_df_comparison(best_fit_h3only, h3only_stan)
 plot_data_h1vac <- create_df_comparison(best_fit_h1only, h1only_stan)
 plot_data_h3cell <- create_df_comparison(best_fit_h3cell, h3cell_stan)
-plot_data_h3cell <- create_df_comparison(best_fit_h1cell, h1cell_stan)
+plot_data_h1cell <- create_df_comparison(best_fit_h1cell, h1cell_stan)
 
 
 p1 <- plot_data_h1vac %>%  mutate(study = recode(study, !!!study_labels)) %>%
@@ -81,7 +81,7 @@ p4 <- plot_data_h3cell %>%  mutate(study = recode(study, !!!study_labels)) %>%
         ggtitle("Model fits for A(H3N2) circulating strains") + guides(size = "none")
 
 p1 / p2 / p3 / p4 + plot_annotation(tag_levels = "A")
-ggsave(file = here::here("outputs", "figs", "main", "fig0.pdf"), height = 10, width = 10)
+ggsave(file = here::here("outputs", "figs", "main", "fig0.pdf"), height = 12, width = 10)
 
 
 

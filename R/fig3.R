@@ -97,7 +97,7 @@ p2 <- comparbw_t_mean_uncert_marginal_eff %>% filter(subtype %in% c("A(H1N1) cir
      ggplot() + 
         geom_boxplot(aes(x = titre_vals, y = diff_heuristic)) + 
         facet_grid(cols = vars(subtype), rows = vars(heuristic)) + theme_bw() + 
-        labs(x = "Pre-vaccination HAI titre", y = "Marginal effect of vaccination history on heuristic in days\n(Infrequently vs. frequently vaccinated)")  + 
+        labs(x = "Pre-vaccination HAI titre", y = "Marginal effect of vaccination history on heuristic in days\n(Infrequently - frequently vaccinated)")  + 
     theme(strip.text = element_text(size = 12), text = element_text(size = 12)) 
 
 
@@ -105,9 +105,13 @@ p1 / p2  + plot_annotation(tag_levels = "A")
 ggsave(here::here("outputs", "figs", "main", "fig3.png"), height = 14, width = 12)
 
 
-comparbw_t_mean_uncert %>% filter(subtype == "A(H1N1) vaccinating") %>% 
+comparbw_t_mean_uncert %>% filter(subtype == "A(H1N1) circulating") %>% 
     group_by(v, titre_vals) %>% ggdist::mean_qi(dur_4fold, .width = 0.95)
 
 
-comparbw_t_mean_uncert %>% filter(subtype == "A(H3N2) vaccinating") %>% 
+comparbw_t_mean_uncert %>% filter(subtype == "A(H3N2) circulating") %>% 
     group_by(v, titre_vals) %>% ggdist::mean_qi(dur_4fold, .width = 0.95)
+
+comparbw_t_mean_uncert_marginal_eff %>% filter(subtype == "A(H1N1) circulating") %>% 
+    filter(heuristic == "HAI titre \u2265 1:80") %>%
+    group_by(t, titre_vals) %>% ggdist::mean_qi(diff_heuristic, .width = 0.95)
